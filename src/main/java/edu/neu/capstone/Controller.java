@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 /**
  * Created by Adam on 5/28/15.
  */
-public class Controller implements AutoCloseable {
+public class Controller {
     private static Logger LOG = LoggerFactory.getLogger(Controller.class);
 
     private LeapHandler leapHandler;
@@ -39,11 +39,6 @@ public class Controller implements AutoCloseable {
 
         LOG.info("Stopping controller");
 
-        try {
-            controller.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public Controller() {
@@ -51,11 +46,4 @@ public class Controller implements AutoCloseable {
         droneController = new SimulatorController();
     }
 
-    public void close() throws Exception {
-
-        if (leapHandler != null) {
-            leapHandler.close();
-        }
-
-    }
 }
