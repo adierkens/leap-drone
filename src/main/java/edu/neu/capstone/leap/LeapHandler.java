@@ -14,6 +14,7 @@ public class LeapHandler extends Listener implements AutoCloseable {
 
     private Controller controller;
     private Listener listener;
+    private PlotListener plotListener;
 
     public LeapHandler() {
         try {
@@ -23,8 +24,12 @@ public class LeapHandler extends Listener implements AutoCloseable {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        plotListener = new PlotListener();
+
         controller = new Controller();
         controller.addListener(listener);
+        controller.addListener(plotListener);
     }
 
     public void close() throws Exception {

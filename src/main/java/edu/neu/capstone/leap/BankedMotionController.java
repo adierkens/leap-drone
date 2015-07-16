@@ -1,6 +1,8 @@
 package edu.neu.capstone.leap;
 
 import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,25 @@ public class BankedMotionController extends Listener {
     }
 
     public void onFrame(Controller controller) {
-        LOG.info("New Frame");
+
+        Frame currFrame = controller.frame();
+
+        if (currFrame.hands().count() == 0) {
+            // Ignore frames without hands
+            return;
+        }
+
+        for (Hand hand : currFrame.hands()) {
+            if (hand.isRight()) {
+
+                float pitch = hand.direction().pitch();
+                float yaw = hand.direction().yaw();
+                float roll = hand.direction().roll();
+
+                LOG.debug(String.format("Roll: %s, Pitch: %s, Yaw: %s", roll, pitch, yaw));
+
+            }
+        }
+
     }
 }
