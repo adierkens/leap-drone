@@ -1,9 +1,7 @@
 package edu.neu.capstone.leap;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Listener;
+import com.leapmotion.leap.*;
+import edu.neu.capstone.leap.base.HandAxisHelper;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -24,6 +22,7 @@ public class PlotListener extends Listener {
     private TimeSeries rollSeries;
     private TimeSeries pitchSeries;
     private TimeSeries yawSeries;
+    private HandAxisHelper rollAxisHelper;
 
     public PlotListener() {
         rollSeries = new TimeSeries("roll");
@@ -48,6 +47,8 @@ public class PlotListener extends Listener {
 
         frame.pack();
         frame.setVisible(true);
+
+        rollAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.ROLL, 10);
     }
 
     /**
@@ -65,16 +66,12 @@ public class PlotListener extends Listener {
 
         for (Hand hand : currFrame.hands()) {
             if (hand.isRight()) {
-
-                float pitch = hand.direction().pitch();
-                float yaw = hand.direction().yaw();
-                float roll = hand.direction().roll();
-
+                rollAxisHelper.addHandPosition(hand);
                 RegularTimePeriod mili = new Millisecond();
 
-                rollSeries.addOrUpdate(mili, roll);
-                pitchSeries.addOrUpdate(mili, pitch);
-                yawSeries.addOrUpdate(mili, yaw);
+                rollSeries.addOrUpdate(mili, rollAxisHelper.average());
+                // pitchSeries.addOrUpdate(mili, pitch);
+                // yawSeries.addOrUpdate(mili, yaw);
             }
         }
 
