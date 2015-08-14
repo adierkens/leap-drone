@@ -28,6 +28,8 @@ public class HandAxisHelper {
         double val = 0;
         if (axis.equals(Axis.ROLL)) {
             val = calculateRoll(hand);
+        } else if (axis.equals(Axis.PITCH)) {
+            val = calculatePitch(hand);
         }
         rollingAverage.add(val);
     }
@@ -44,8 +46,9 @@ public class HandAxisHelper {
 
         for (Finger finger : hand.fingers()) {
 
-            if (finger.equals(hand.fingers().leftmost()) || finger.equals(hand.fingers().rightmost()))
+            if (finger.equals(hand.fingers().leftmost()) || finger.equals(hand.fingers().rightmost())) {
                 continue;
+            }
 
             if (lastFinger == null) {
                 lastFinger = finger;
@@ -61,9 +64,31 @@ public class HandAxisHelper {
         avgDeltaX = avgDeltaX/hand.fingers().count();
         avgDeltaY = avgDeltaY/hand.fingers().count();
 
-        LOG.info(String.format("X: %s - Y: %s", avgDeltaX, avgDeltaY));
+        return -Math.atan(avgDeltaY/avgDeltaX);
 
-        return Math.atan(avgDeltaY/avgDeltaX);
+    }
 
+    public double calculatePitch(Hand hand) {
+
+        double palmY = hand.palmPosition().getY();
+        double palmZ = hand.palmPosition().getZ();
+
+        double deltaY, deltaZ;
+
+        double avgAngle = 0.0;
+
+        for (Finger finger : hand.fingers()) {
+
+            if (finger.equals(hand.fingers().leftmost()) || finger.equals(hand.fingers().rightmost())) {
+                continue;
+            }
+
+            deltaY = finger.tipPosition().getY() - palmY;
+            deltaZ = finger.tipPosition().getZ() - palmZ;
+
+            avgAngle += Math.atan(deltaY/deltaZ);
+
+        }
+        return -avgAngle / hand.fingers().count();
     }
 }

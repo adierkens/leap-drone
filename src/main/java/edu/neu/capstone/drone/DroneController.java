@@ -20,4 +20,20 @@ public abstract class DroneController implements EventListener<DroneControlEvent
     public abstract void setYaw(Integer yaw);
     public abstract void setThrottle(Integer throttle);
 
+    public void onEvent(DroneControlEvent event) {
+        if (event != null) {
+
+            if (event.getPitch() != null) {
+                setPitch(event.getPitch());
+            }
+
+            if (event.getRoll() != null) {
+                setRoll(event.getRoll());
+            }
+
+            if (event.getYaw() != null) {
+                setYaw(event.getYaw());
+            }
+        }
+    }
 }

@@ -19,10 +19,12 @@ import javax.swing.*;
  */
 public class PlotListener extends Listener {
     private static final Logger LOG = LoggerFactory.getLogger(PlotListener.class);
+    private static final Integer ROLLING_AVG_COUNT = 10;
     private TimeSeries rollSeries;
     private TimeSeries pitchSeries;
     private TimeSeries yawSeries;
     private HandAxisHelper rollAxisHelper;
+    private HandAxisHelper pitchAxisHelper;
 
     public PlotListener() {
         rollSeries = new TimeSeries("roll");
@@ -48,7 +50,9 @@ public class PlotListener extends Listener {
         frame.pack();
         frame.setVisible(true);
 
-        rollAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.ROLL, 10);
+        rollAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.ROLL, ROLLING_AVG_COUNT);
+        pitchAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.PITCH, ROLLING_AVG_COUNT);
+
     }
 
     /**
@@ -67,10 +71,11 @@ public class PlotListener extends Listener {
         for (Hand hand : currFrame.hands()) {
             if (hand.isRight()) {
                 rollAxisHelper.addHandPosition(hand);
+                pitchAxisHelper.addHandPosition(hand);
                 RegularTimePeriod mili = new Millisecond();
 
                 rollSeries.addOrUpdate(mili, rollAxisHelper.average());
-                // pitchSeries.addOrUpdate(mili, pitch);
+                pitchSeries.addOrUpdate(mili, pitchAxisHelper.average());
                 // yawSeries.addOrUpdate(mili, yaw);
             }
         }

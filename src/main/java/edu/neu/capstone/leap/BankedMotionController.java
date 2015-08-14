@@ -4,6 +4,9 @@ import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Listener;
+import edu.neu.capstone.drone.event.DroneControlEvent;
+import edu.neu.capstone.events.EventDispatcher;
+import edu.neu.capstone.leap.base.HandAxisHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +15,23 @@ import org.slf4j.LoggerFactory;
  */
 public class BankedMotionController extends Listener {
     private static final Logger LOG = LoggerFactory.getLogger(BankedMotionController.class);
+    private static final Integer ROLLING_AVG_COUNT = 10;
+
+    private HandAxisHelper rollAxisHelper;
+    private HandAxisHelper pitchAxisHelper;
+
+    public BankedMotionController() {
+        rollAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.ROLL, ROLLING_AVG_COUNT);
+        pitchAxisHelper = new HandAxisHelper(HandAxisHelper.Axis.PITCH, ROLLING_AVG_COUNT);
+    }
+
+    private void update(Hand hand) {
+        rollAxisHelper.addHandPosition(hand);
+        pitchAxisHelper.addHandPosition(hand);
+
+        DroneControlEvent droneControlEvent = new DroneControlEvent((int)Math.toDegrees(rollAxisHelper.average()), (int)Math.toDegrees(pitchAxisHelper.average()), null);
+        EventDispatcher.getInstance().notify(droneControlEvent);
+    }
 
     @Override
     public void onConnect(Controller controller) {
@@ -29,13 +49,7 @@ public class BankedMotionController extends Listener {
 
         for (Hand hand : currFrame.hands()) {
             if (hand.isRight()) {
-
-                float pitch = hand.direction().pitch();
-                float yaw = hand.direction().yaw();
-                float roll = hand.direction().roll();
-
-                LOG.debug(String.format("Roll: %s, Pitch: %s, Yaw: %s", roll, pitch, yaw));
-
+                update(hand);
             }
         }
 
